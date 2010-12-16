@@ -39,7 +39,7 @@ Capistrano::Configuration.instance.load do
 #  set :key_name, "#{application}"
 #  set :queue_name, "#{application}"
   set :user_data, nil
-  set :addressing_type, 'public'
+  #set :addressing_type, 'public'
   set :availability_zone, nil
 
 end

@@ -199,6 +199,11 @@ Capistrano::Configuration.instance.load do
           capsize_ec2.print_instance_description(response)
 
           instance_id = response.reservationSet.item[0].instancesSet.item[0].instanceId
+          dns_name = response.reservationSet.item[0].instancesSet.item[0].dnsName
+          
+          set(:instance_id, instance_id)
+          set(:dns_name, dns_name)
+          
           puts "SSH:"
           puts "cap -s instance_id='#{instance_id}' ec2:instances:ssh"
           puts ""
@@ -215,7 +220,7 @@ Capistrano::Configuration.instance.load do
           # override the roles set in deploy.rb with the server instance started here.
           # This is temporary and only remains defined for the length of this
           # capistrano run!
-          #set(:dns_name, response.reservationSet.item[0].instancesSet.item[0].dnsName)
+
           #set_default_roles_to_target_role
 
         rescue Exception => e

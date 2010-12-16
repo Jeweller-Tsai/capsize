@@ -6,13 +6,15 @@
   fileutils
   builder
   capistrano
-  EC2
+  aws
   sqs
   capsize/version
   capsize/capsize.rb
   capsize/meta_tasks
   capsize/ec2
   capsize/ec2_plugin
+  capsize/elb
+  capsize/elb_plugin
   capsize/sqs
   capsize/sqs_plugin
   capsize/configuration
@@ -24,3 +26,5 @@
     exit
   end
 }
+
+include AWS
