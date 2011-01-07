@@ -202,10 +202,10 @@ Capistrano::Configuration.instance.load do
 
           instance_id = response.reservationSet.item[0].instancesSet.item[0].instanceId
           dns_name = response.reservationSet.item[0].instancesSet.item[0].dnsName
-          
+
           set(:instance_id, instance_id)
           set(:dns_name, dns_name)
-          
+
           puts "SSH:"
           puts "cap -s instance_id='#{instance_id}' ec2:instances:ssh"
           puts ""
@@ -363,7 +363,7 @@ Capistrano::Configuration.instance.load do
                 puts "  ipPermissions:toPort = " + permission.toPort unless permission.toPort.nil?
                 puts "  ipPermissions:sourceSecurityGroupName = " + permission.groups.item.first.groupName unless permission.groups.nil?
                 puts "  ipPermissions:sourceSecurityGroupOwnerId = " + permission.groups.item.first.userId unless permission.groups.nil?
-                
+
                 unless permission.ipRanges.nil?
                   permission.ipRanges.item.each do |range|
                     puts "  ipRanges:cidrIp = " + range.cidrIp unless range.cidrIp.nil?
@@ -501,13 +501,18 @@ Capistrano::Configuration.instance.load do
       DESC
       task :show do
         begin
-          capsize_ec2.describe_images().imagesSet.item.each do |item|
-            puts "imageId = " + item.imageId unless item.imageId.nil?
-            puts "imageLocation = " + item.imageLocation unless item.imageLocation.nil?
-            puts "imageOwnerId = " + item.imageOwnerId unless item.imageOwnerId.nil?
-            puts "imageState = " + item.imageState unless item.imageState.nil?
-            puts "isPublic = " + item.isPublic unless item.isPublic.nil?
-            puts ""
+          images = capsize_ec2.describe_images().imagesSet
+          if images
+            images.item.each do |item|
+              puts "imageId = " + item.imageId unless item.imageId.nil?
+              puts "imageLocation = " + item.imageLocation unless item.imageLocation.nil?
+              puts "imageOwnerId = " + item.imageOwnerId unless item.imageOwnerId.nil?
+              puts "imageState = " + item.imageState unless item.imageState.nil?
+              puts "isPublic = " + item.isPublic unless item.isPublic.nil?
+              puts ""
+            end
+          else
+            puts "No images"
           end
         rescue Exception => e
           puts "The attempt to show images failed with error : " + e
@@ -533,7 +538,7 @@ Capistrano::Configuration.instance.load do
           puts "The attempt to show elastic IP addresses failed with error : " + e
           raise e
         end
-        
+
         capsize_ec2.print_address_description(result)
       end
 
@@ -608,7 +613,7 @@ Capistrano::Configuration.instance.load do
         elsif !instance_id || instance_id == ''
           puts "You don't seem to have set an instance_id ..."
         else
-          #TODO: check if this IP is already assigned to another instance and make 
+          #TODO: check if this IP is already assigned to another instance and make
           # the user confirm the new association if that's the case
           begin
             response = capsize_ec2.associate_address(:public_ip => public_ip, :instance_id => instance_id)
@@ -624,7 +629,7 @@ Capistrano::Configuration.instance.load do
 
 
       desc <<-DESC
-      Disassociates the specified elastic IP from whatever instance it's 
+      Disassociates the specified elastic IP from whatever instance it's
       currently associated with
 
       You can disassociate a specific elastic IP by doing one of the following:
@@ -660,8 +665,8 @@ Capistrano::Configuration.instance.load do
 
     # VOLUME TASKS
     #########################################
-     
-      namespace :volumes do 
+
+      namespace :volumes do
         desc <<-DESC
         Describes existing volumes.
         DESC
@@ -669,7 +674,7 @@ Capistrano::Configuration.instance.load do
           begin
             amazon = capsize_ec2.connect
             volumes = amazon.describe_volumes
-          
+
             if volumes.volumeSet && volumes.volumeSet.item
               volumes.volumeSet.item.each do |volume|
                 puts "volume:volumeId = #{volume.volumeId}"
@@ -757,14 +762,14 @@ Capistrano::Configuration.instance.load do
         Delete an EBS volume.
         This will delete the EBS volume VOLUME_ID.
         DESC
-        task :delete do 
+        task :delete do
 
           confirm = (Capistrano::CLI.ui.ask("WARNING! Really terminate instance \"#{instance_id}\"? (y/N): ").downcase == 'y')
           if confirm
             begin
               volume_id = capsize.get :volume_id
               puts "Deleting volume #{volume_id}"
-              
+
               amazon = capsize_ec2.connect
               response = amazon.delete_volume :volume_id => volume_id
               if response.res == "true"

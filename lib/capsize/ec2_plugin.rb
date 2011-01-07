@@ -252,7 +252,7 @@ module Capsize
 
       instance_id = response.instancesSet.item[0].instanceId
       puts "Instance #{instance_id} startup in progress"
-      
+
       #set scope outside of block
       instance = nil
 
@@ -299,7 +299,7 @@ module Capsize
         retry unless tries == 35
         puts "We couldn't ever SSH in!"
       end
-      
+
       #scripts
       if File.exists?(fetch(:capsize_config_dir)+"/scripts")
         begin
@@ -417,13 +417,13 @@ module Capsize
         set :to_port, options[:from_port] if options[:to_port].nil? || options[:to_port].empty?
         options[:to_port] = to_port if options[:to_port].nil? || options[:to_port].empty?
       end
-      
+
       #if source_security_group_name and source_security_group_owner_id are specified, unset the incompatible options
       if !options[:source_security_group_name].nil? && !options[:source_security_group_owner_id].nil?
         options.delete(:ip_protocol)
         options.delete(:from_port)
         options.delete(:to_port)
-        options.delete(:cidr_ip)        
+        options.delete(:cidr_ip)
       end
 
       amazon.authorize_security_group_ingress(options)
@@ -458,13 +458,13 @@ module Capsize
         set :to_port, options[:from_port] if options[:to_port].nil? || options[:to_port].empty?
         options[:to_port] = to_port if options[:to_port].nil? || options[:to_port].empty?
       end
-      
+
       #if source_security_group_name and source_security_group_owner_id are specified, unset the incompatible options
       if !options[:source_security_group_name].nil? && !options[:source_security_group_owner_id].nil?
         options.delete(:ip_protocol)
         options.delete(:from_port)
         options.delete(:to_port)
-        options.delete(:cidr_ip)        
+        options.delete(:cidr_ip)
       end
 
       amazon.revoke_security_group_ingress(options)
@@ -480,25 +480,25 @@ module Capsize
       options = {:public_ip => []}.merge(options)
       amazon.describe_addresses(:public_ip => options[:public_ip])
     end
-    
+
     # allocate an elastic IP address for use with this account
     def allocate_address
       amazon = connect()
       amazon.allocate_address
     end
-    
+
     # release an elastic IP address from this account
     def release_address(options)
       amazon = connect()
       amazon.release_address(:public_ip => options[:public_ip])
     end
-    
+
     # associate an elastic IP address to an instance
     def associate_address(options)
       amazon = connect()
       amazon.associate_address(:public_ip => options[:public_ip], :instance_id => options[:instance_id])
     end
-    
+
     # disassociate an elastic IP address from whatever instance it may be assigned to
     def disassociate_address(options)
       amazon = connect()
@@ -615,7 +615,7 @@ module Capsize
         puts "You don't own any running or pending instances"
       end
     end
-    
+
     # print the result of an describe_addresses
     def print_address_description(result = nil)
       puts "" if result.nil?
@@ -629,7 +629,7 @@ module Capsize
         puts "You don't have any elastic IP addresses. Run 'cap ec2:addresses:allocate' to acquire one."
       end
     end
-    
+
   end
 end
 Capistrano.plugin :capsize_ec2, Capsize::CapsizeEC2
