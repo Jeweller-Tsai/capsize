@@ -171,6 +171,8 @@ Capistrano::Configuration.instance.load do
 
           key_file = capsize_ec2.get_key_file
 
+          ssh_username = capsize.get(:ssh_username) || "root"
+
           # StrictHostKeyChecking=no ensures that you won't be prompted each time for adding
           # the remote host to your ssh known_hosts file.  This should be ok as the host IP
           # and fingerprint will constantly change as you start and stop EC2 instances.
@@ -179,9 +181,9 @@ Capistrano::Configuration.instance.load do
           #
           # example connect :  ssh -o StrictHostKeyChecking=no -i config/id_rsa-myappkey root@ec2-72-44-51-000.z-1.compute-1.amazonaws.com
           puts "Trying to connect with host with local shell command:"
-          puts "ssh -o StrictHostKeyChecking=no -i #{key_file} root@#{dns_name}"
+          puts "ssh -o StrictHostKeyChecking=no -i #{key_file} #{ssh_username}@#{dns_name}"
           puts "--\n"
-          system "ssh -o StrictHostKeyChecking=no -i #{key_file} root@#{dns_name}"
+          system "ssh -o StrictHostKeyChecking=no -i #{key_file} #{ssh_username}@#{dns_name}"
         end
       end
 

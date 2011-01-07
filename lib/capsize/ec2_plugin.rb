@@ -233,6 +233,12 @@ module Capsize
       # determine the local key file name and delete it
       key_file = get_key_file(:key_name => options[:key_name], :key_dir => options[:key_dir])
 
+      # Default user for ssh access
+      ssh_username = options[:ssh_username] || get(:ssh_username) || "root"
+
+      # Timeout
+      timeout = options[:timeout] || get(:timeout) || 5
+
       # don't let them go further if there is no private key present.
       raise Exception, "Private key is not present in #{key_file}.\nPlease generate one with 'cap ec2:keypairs:create' or specify a different KEY_NAME." unless File.exists?(key_file)
 
@@ -265,24 +271,27 @@ module Capsize
         raise "Instance #{instance_id} never moved to state 'running'!"
       end
 
+      puts "Retrieving public key via #{ssh_username}@#{hostname_from_instance_id(instance_id)}"
       #loop waiting to get the public key
       tries = 0
       begin
         require 'timeout'
         begin
-          Timeout::timeout(5) do
-            system("ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no -i #{get_key_file} root@#{hostname_from_instance_id(instance_id)} echo success") or raise "SSH Auth Failure"
+          Timeout::timeout(timeout) do
+            system("ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no -i #{get_key_file} #{ssh_username}@#{hostname_from_instance_id(instance_id)} echo success") or raise "SSH Auth Failure"
           end
         rescue Timeout::Error
           raise "SSH timed out..."
         end
         puts ""
         puts "SSH is up! Grabbing the public key..."
-        if system "scp -o StrictHostKeyChecking=no -i #{get_key_file} root@#{hostname_from_instance_id(instance_id)}:/mnt/openssh_id.pub #{get_key_file}.pub"
+        if system "scp -o StrictHostKeyChecking=no -i #{get_key_file} #{ssh_username}@#{hostname_from_instance_id(instance_id)}:/mnt/openssh_id.pub #{get_key_file}.pub"
           puts "Public key saved at #{get_key_file}.pub"
         else
           puts "Error grabbing public key"
         end
+      rescue Interrupt
+        puts "User cancelled SSH attempt"
       rescue Exception => e
         $stdout.print '.'
         sleep(10)
@@ -300,9 +309,9 @@ module Capsize
             if File.exists?(script_path)
               begin
                 puts "Found script for security group #{group}, running"
-                system("scp -o StrictHostKeyChecking=no -i #{get_key_file} #{script_path} root@#{hostname_from_instance_id(instance_id)}:/tmp/") or raise "SCP ERROR"
-                system("ssh -o StrictHostKeyChecking=no -i #{get_key_file} root@#{hostname_from_instance_id(instance_id)} chmod o+x /tmp/#{group}") or raise "Error changing script permissions"
-                system("ssh -o StrictHostKeyChecking=no -i #{get_key_file} root@#{hostname_from_instance_id(instance_id)} /tmp/#{group}") or raise "Error running script"
+                system("scp -o StrictHostKeyChecking=no -i #{get_key_file} #{script_path} #{ssh_username}@#{hostname_from_instance_id(instance_id)}:/tmp/") or raise "SCP ERROR"
+                system("ssh -o StrictHostKeyChecking=no -i #{get_key_file} #{ssh_username}@#{hostname_from_instance_id(instance_id)} chmod o+x /tmp/#{group}") or raise "Error changing script permissions"
+                system("ssh -o StrictHostKeyChecking=no -i #{get_key_file} #{ssh_username}@#{hostname_from_instance_id(instance_id)} /tmp/#{group}") or raise "Error running script"
               rescue Exception => e
                 puts e
               end
