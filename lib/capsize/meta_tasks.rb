@@ -1,4 +1,4 @@
-Capistrano::Configuration.instance.load do
+Capistrano::Configuration.instance(:must_exist).load do
 
   namespace :ec2 do
 

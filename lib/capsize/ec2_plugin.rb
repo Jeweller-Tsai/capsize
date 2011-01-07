@@ -116,11 +116,11 @@ module Capsize
       # Try to create the new keypair
       begin
         private_key = amazon.create_keypair(:key_name => options[:key_name])
-      rescue EC2::InvalidKeyPairDuplicate
+      rescue AWS::InvalidKeyPairDuplicate
         # keypair already exists with this :key_name
         # Re-raising will provide a useful message, so we don't need to
         raise
-      rescue EC2::InvalidKeyPairNotFound
+      rescue AWS::InvalidKeyPairNotFound
         # this is a new keypair, continue
       end
 
