@@ -5,7 +5,7 @@
   fileutils
   builder
   capistrano
-  aws
+  AWS
   sqs
   capsize/version
   capsize/capsize
