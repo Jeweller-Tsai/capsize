@@ -328,13 +328,13 @@ Capistrano::Configuration.instance.load do
         begin
           capsize_ec2.create_security_group()
           puts "The security group \"#{capsize.get(:group_name)}\" has been created."
-        rescue EC2::InternalError => e
+        rescue AWS::InternalError => e
           # BUG : Bug in EC2.  Is throwing InternalError instead of InvalidGroupDuplicate if you try to create a group that exists.  Catch both.
           # REMOVE THIS RESCUE WHEN BUG IS FIXED BY AWS
-          puts "The security group you specified for group name \"#{capsize.get(:group_name)}\" already exists (EC2::InternalError)."
+          puts "The security group you specified for group name \"#{capsize.get(:group_name)}\" already exists (AWS::InternalError)."
           # Don't re-raise this exception
-        rescue EC2::InvalidGroupDuplicate => e
-          puts "The security group you specified for group name \"#{capsize.get(:group_name)}\" already exists (EC2::InvalidGroupDuplicate)."
+        rescue AWS::InvalidGroupDuplicate => e
+          puts "The security group you specified for group name \"#{capsize.get(:group_name)}\" already exists (AWS::InvalidGroupDuplicate)."
           # Don't re-raise this exception
         rescue Exception => e
           puts "The attempt to create security group \"#{capsize.get(:group_name)}\" failed with the error : " + e
@@ -411,8 +411,8 @@ Capistrano::Configuration.instance.load do
         begin
           capsize_ec2.authorize_ingress({:group_name => capsize.get(:group_name), :from_port => capsize.get(:from_port), :to_port => capsize.get(:to_port)})
           puts "Firewall ingress granted"
-        rescue EC2::InvalidPermissionDuplicate => e
-          puts "The firewall ingress rule you specified for group name \"#{capsize.get(:group_name)}\" was already set (EC2::InvalidPermissionDuplicate)."
+        rescue AWS::InvalidPermissionDuplicate => e
+          puts "The firewall ingress rule you specified for group name \"#{capsize.get(:group_name)}\" was already set (AWS::InvalidPermissionDuplicate)."
           # Don't re-raise this exception
         rescue Exception => e
           puts "The attempt to allow firewall ingress for security group \"#{capsize.get(:group_name)}\" failed with the error : " + e
@@ -440,8 +440,8 @@ Capistrano::Configuration.instance.load do
         begin
           capsize_ec2.create_security_group()
           puts "The security group \"#{capsize.get(:group_name)}\" has been created."
-        rescue EC2::InvalidGroupDuplicate => e
-          puts "The security group you specified for group name \"#{capsize.get(:group_name)}\" already exists (EC2::InvalidGroupDuplicate)."
+        rescue AWS::InvalidGroupDuplicate => e
+          puts "The security group you specified for group name \"#{capsize.get(:group_name)}\" already exists (AWS::InvalidGroupDuplicate)."
           # Don't re-raise this exception
         rescue Exception => e
           puts "The attempt to create security group \"#{capsize.get(:group_name)}\" failed with the error : " + e
@@ -453,8 +453,8 @@ Capistrano::Configuration.instance.load do
           begin
             capsize_ec2.authorize_ingress({:group_name => capsize.get(:group_name), :from_port => "#{port}", :to_port => "#{port}"})
             puts "Firewall ingress granted for #{capsize.get(:group_name)} on port #{port}"
-          rescue EC2::InvalidPermissionDuplicate => e
-            puts "The firewall ingress rule you specified for group name \"#{capsize.get(:group_name)}\" on port #{port} was already set (EC2::InvalidPermissionDuplicate)."
+          rescue AWS::InvalidPermissionDuplicate => e
+            puts "The firewall ingress rule you specified for group name \"#{capsize.get(:group_name)}\" on port #{port} was already set (AWS::InvalidPermissionDuplicate)."
             # Don't re-raise this exception
           rescue Exception => e
             puts "The attempt to allow firewall ingress on port #{port} for security group \"#{capsize.get(:group_name)}\" failed with the error : " + e
