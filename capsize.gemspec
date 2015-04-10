@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency(%q<capistrano>, [">= 2.3.0"])
   s.add_dependency(%q<amazon-ec2>, [">= 0.7.9"])
-  s.add_dependency(%q<rcov>, [">= 0.8.1.2.0"])
+  s.add_development_dependency(%q<rcov>, [">= 0.8.1.2.0"])
   s.add_dependency(%q<SQS>, [">= 0.1.5"])
   s.add_dependency(%q<builder>, [">= 2.1.2"])
   s.add_dependency(%q<RedCloth>, [">= 3.0.4"])
